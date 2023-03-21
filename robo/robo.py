@@ -15,15 +15,29 @@ class Robo:
     __ev3 = __importar_lego.getEv3Brick()()
 
     def __init__(self, diametro_robo: float, diametro_roda: float, motor_direito: RoboMotor, motor_esquerdo: RoboMotor):
+        """Inicia o construturo da classe ROBO
+        PARAMETROS:
+            diametro_robo: float,
+            diametro_roda: float,
+            motor_direito: RoboMotor,
+            motor_esquerdo: RoboMotor
+        """
         self.__diametro_roda = diametro_roda
         self.__diametro_robo = diametro_robo
         self.__motor_direito = motor_direito
         self.__motor_esquerdo = motor_esquerdo
 
     def distanciaPorGiroRoda(self) -> float:
+        """ RETORNA A DISTANCIA PERCORRIDA POR CADA GIRO DA RODA 
+        RETORNA: FLOAT
+        """
         return self.__diametro_roda * math.pi
 
     def andarDistancia(self, distancia: float):
+        """ ANDAR DISTANCIA EM CM 
+        PARAMETROS:
+            distancia: float (em CM)
+        """
         self.paraMotores()
         """ Distancia deve ser passada em milimetros """
         quantidade_giros = distancia / self.distanciaPorGiroRoda()
@@ -50,12 +64,15 @@ class Robo:
                 angulo=(direcao * quantidade_giros * 360))
 
     def virar90grausDireita(self):
+        """ VIRAR 90 GRAUS PARA DIREITA """
         self.__virar90graus(1)
 
     def virar90grausEsquerda(self):
+        """ VIRAR 90 GRAUS PARA ESQUERDA """
         self.__virar90graus(-1)
 
     def paraMotores(self):
+        """ PARAR MOTORES """
         if(self.__motor_direito == None or self.__motor_esquerdo == None):
             print("### Impossivel realizar essa acao!! ###")
             print("### Motores nao cadastrados #####")
@@ -63,10 +80,19 @@ class Robo:
             self.__motor_direito.pararMotor()
             self.__motor_esquerdo.pararMotor()
 
-    def bipe(self):
-        self.__ev3.speaker.beep(frequency=500, duration=100)
+    def bipe(self, frequencia=500, duracao=100):
+        """ EXECUTAR SOM DE BEEP 
+        PARAMETROS OPCIONAIS:
+            frequencia: inteiro
+            duracao: inteiro
+        """
+        self.__ev3.speaker.beep(frequency=frequencia, duration=duracao)
 
     def moverParaFrente(self, velocidade: None):
+        """ MOVER O ROBO PARA FRENTE 
+        PARAMETROS OBRIGATORIOS:
+            velocidade: float
+        """
         if(self.__motor_direito == None or self.__motor_esquerdo == None):
             print("### Impossivel realizar essa acao!! ###")
             print("### Motores nao cadastrados #####")
@@ -76,6 +102,10 @@ class Robo:
             self.__motor_esquerdo.moverComVelocidade(velocidade=velocidade)
 
     def moverParaTras(self, velocidade:None):
+        """ MOVER O ROBO PARA TRAS 
+        PARAMETROS OBRIGATORIOS:
+            velocidade: float
+        """
         if(self.__motor_direito == None or self.__motor_esquerdo == None):
             print("### Impossivel realizar essa acao!! ###")
             print("### Motores nao cadastrados #####")

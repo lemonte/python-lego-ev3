@@ -17,6 +17,7 @@ motor_direita = RoboMotor(Port="d")
 motor_esquerda = RoboMotor(Port="c")
 
 
+
 robo = Robo(
     diametro_robo=125,
     diametro_roda=55,
