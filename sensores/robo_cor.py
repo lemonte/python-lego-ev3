@@ -5,27 +5,18 @@ from lego_imports.lego_imports import LegoImports
 class RoboCor:
     """INICIA A CLASSE ROBO COR  RoboCOR(1)  (TIPO INTEIRO)  DA PORTA DO SENSOR DE COR """
     __importar_lego = LegoImports()
-    __color_dict_HSV = {
-            'PRETO': [[120, 70, 30], [90, 40, 0]],
-            'BRANCO': [[350, 5, 70], [0, 0, 0]],
-            # 'VEMELHO1': [[180, 255, 255], [159, 50, 70]],
-            # 'VERMELHO2': [[9, 255, 255], [0, 50, 70]],
-            'VERDE': [[180, 100, 50], [100, 50, 10]],
-            'AZUL': [(210, 100, 70), [150, 50, 40]],
-            # 'AMARELO': [[35, 255, 255], [25, 50, 70]],
-            # 'ROXO': [[158, 255, 255], [129, 50, 70]],
-            # 'LARANJA': [[24, 255, 255], [10, 50, 70]],
-            # 'CINZA': [[180, 18, 230], [0, 0, 40]]
-        }
     def_sensor_cor = None
+    __valor_maximo = (163, 156, 162)
+    __valor_minimo = (16, 21, 22)
 
-
-    def __init__(self, Port: int):
+    def __init__(self, Port: int, cor_branco: tuple =(163, 156, 162), cor_preto: tuple = (16, 21, 22)):
       porta = Uteis().definirPorta(str(Port))
       if(porta == None):
           print("Porta inválida para iniciar o sensor de cor")
       else:
           self.def_sensor_cor = self.__importar_lego.getLUMPDevice()(porta)
+          self.__valor_maximo = cor_branco
+          self.__valor_minimo = cor_preto
 
 
     def reflexao(self):
@@ -44,58 +35,40 @@ class RoboCor:
     def rgb_azul(self):
       return self.rgb()[2]
 
-    def verdeEncontrado(self, rgb):
-      r, g, b = rgb
-      return self.__verificarSeCor("VERDE", r, g, b)
-      
-    def __verificarSeCor(self, cor: str, r, g, b):
-      h, s, v = self.__rgb_para_hsv(r, g, b)
-      lista = self.__color_dict_HSV[cor]
-      return (self.__cor_encontrada([h,s,v], lista))
+    def __coeficiente(self):
+      max_r,max_g, max_b = self.__valor_maximo
+      min_r, min_g, min_b = self.__valor_minimo
+      coe_r = (max_r - min_r)/15
+      coe_g = (max_g - min_g)/15
+      coe_b = (max_b - min_b)/15
+      return coe_r, coe_g, coe_b
 
-    def brancoEncontrado(self, rgb):
-      r, g, b = rgb
-      return self.__verificarSeCor("BRANCO", r, g, b)
 
-    def rgbParaCor(self, r, g, b):
-      h, s, v = self.__rgb_para_hsv(r, g, b)
-      self.__distinctColor(h, s, v)
+    def __verificaSeEMenorMinimo(self, valor, valor_min):
+        if(valor < valor_min):
+            valor = valor_min
+        return valor 
 
-    def __rgb_para_hsv(self, r, g, b):
-        r, g, b = r/255.0, g/255.0, b/255.0
-        mx = max(r, g, b)
-        mn = min(r, g, b)
-        df = mx-mn
-        if mx == mn:
-            h = 0
-        elif mx == r:
-            h = (60 * ((g-b)/df) + 360) % 360
-        elif mx == g:
-            h = (60 * ((b-r)/df) + 120) % 360
-        elif mx == b:
-            h = (60 * ((r-g)/df) + 240) % 360
-        if mx == 0:
-            s = 0
-        else:
-            s = (df/mx)*100
-        v = mx*100
-        return h, s, v
+    def __verificaSeEMaiorMaximo(self, valor, valor_max):
+        if(valor > valor_max):
+            valor = valor_max
+        return valor
 
-    def __cor_encontrada(self, lista_procurada: list, lista: list) -> bool:
-        if(
-            lista[0][0] >= lista_procurada[0] and
-            lista[0][1] >= lista_procurada[1] and
-            lista[0][2] >= lista_procurada[2] and
-            lista[1][0] <= lista_procurada[0] and
-            lista[1][1] <= lista_procurada[1] and
-            lista[1][2] <= lista_procurada[2]
-        ):
-            return True
-        return False
 
-    def __distinctColor(self, h, s, v):
-        print(h, s, v)
-        for key in self.__color_dict_HSV:
-            value = self.__color_dict_HSV[key]
-            if(self.__cor_encontrada([h, s, v], value)):
-                return print(key)
+    def __converterRGBde0A15CadaCor(self, cor, valor_max, valor_min, coeficiente):
+        cor = self.__verificaSeEMenorMinimo(cor, valor_min)
+        cor = self.__verificaSeEMaiorMaximo(cor, valor_max)
+        cor = cor - valor_min
+        cor = (cor+(coeficiente//2))//coeficiente
+        return cor
+        
+
+    def converterRGBde0A15(self, rgb: tuple):
+        r, g, b =rgb
+        max_r,max_g, max_b = self.__valor_maximo
+        min_r, min_g, min_b = self.__valor_minimo
+        coe_r, coe_g, coe_b = self.__coeficiente()
+        r = self.__converterRGBde0A15CadaCor(r, max_r, min_r, coe_r)
+        g = self.__converterRGBde0A15CadaCor(g, max_g, min_g, coe_g)
+        b = self.__converterRGBde0A15CadaCor(b, max_b, min_b, coe_b)
+        return r, g, b

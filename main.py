@@ -4,97 +4,102 @@ from motores.robo_motor import RoboMotor
 from robo.robo import Robo
 from sensores.robo_cor import RoboCor
 from codigos.codigos_prontos import CodigosProntos
-from compartilhados.uteis import Uteis
+# import time
 
-cor_direita = RoboCor(Port=1)
-cor_esquerda = RoboCor(Port=2)
-funcoes_uteis = Uteis()
+
+cor_direita = RoboCor(Port=1, cor_branco=(154, 147, 150), cor_preto=(15, 21, 21))
+
+cor_esquerda = RoboCor(Port=2, cor_branco=(129, 112, 69), cor_preto=(15, 16, 12))
+
+
 motor_direita = RoboMotor(Port="d")
+
 motor_esquerda = RoboMotor(Port="c")
+
 
 robo = Robo(
     diametro_robo=125,
     diametro_roda=55,
     motor_direito=motor_direita,
-    motor_esquerdo=motor_esquerda
+    motor_esquerdo=motor_esquerda,
 )
 
 
 codigos = CodigosProntos()
 
-
-def ultimoLadoLinhaPreta(
-    cor_vermelha_direita: float,
-    cor_vermelha_esquerda: float
-) -> int:
-    if(cor_vermelha_esquerda < 15 or cor_vermelha_direita < 15):
-        if(cor_vermelha_direita < 15):
-            ultimo_lado = 1
-        else:
-            ultimo_lado = -1
-    else:
-        ultimo_lado = 0
-    return ultimo_lado
+verde = (0.0, 3.0, 0.0)
 
 
-def fimDaLinha(
-    cor_vermelha_direita: float,
-    cor_vermelha_esquerda: float,
-    ultimo_lado_preto: int
-) -> None:
-    if(
-        cor_vermelha_direita < 140
-        and cor_vermelha_esquerda < 140
-        and (ultimo_lado_preto == 1 or ultimo_lado_preto == -1)
-    ):
-        robo.andarDistancia(20)
-        if(ultimo_lado_preto == 1):
-            robo.virar90grausDireita()
-        else:
-            robo.virar90grausEsquerda()
-
-
-def main() -> None:
-    ultimo_lado_preto = 0
+def funcaoTeste():
     while True:
         rgb_direito = cor_direita.rgb()
         rgb_esquerdo = cor_esquerda.rgb()
-        # if(cor_direita.verdeEncontrado(rgb_direito) or cor_esquerda.verdeEncontrado(rgb_esquerdo)):
-        #     # robo.paraMotores()
-        #     print("achou verde")
-        #     # robo.bipe()
-        #     # break
-        # if(cor_esquerda.brancoEncontrado(rgb_esquerdo) and cor_direita.brancoEncontrado(rgb_direito)):
-        #     # robo.paraMotores()
-        #     print("achou branco")
-            # robo.bipe()
-            # break
-        # ultimo_lado_preto = ultimoLadoLinhaPreta(
-        #     cor_vermelha_direita=rgb_direito[0],
-        #     cor_vermelha_esquerda=rgb_esquerdo[0]
-        # )
+        hsv_dir = cor_direita.converterRGBde0A15(rgb_direito)
+        hsv_esq = cor_esquerda.converterRGBde0A15(rgb_esquerdo)
+        if(hsv_dir == verde or hsv_esq == verde):
+            robo.paraMotores()
+            contador = 0
+            verde_encontrado_dir = (hsv_dir == verde)
+            verde_encontrado_esq = (hsv_esq == verde)
+            if(hsv_dir == verde):
+                robo.moverParaFrente(velocidade=100)
+                while contador < 80 and (hsv_esq != verde):
+                    rgb_direito = cor_direita.rgb()
+                    rgb_esquerdo = cor_esquerda.rgb()
+                    hsv_dir = cor_direita.converterRGBde0A15(rgb_direito)
+                    hsv_esq = cor_esquerda.converterRGBde0A15(rgb_esquerdo)
+                    contador = contador+1
+                robo.paraMotores()
+                robo.moverParaTras(velocidade=100)
+                contador = 0
+                while contador > -100 and (hsv_esq != verde):
+                    rgb_direito = cor_direita.rgb()
+                    rgb_esquerdo = cor_esquerda.rgb()
+                    hsv_dir = cor_direita.converterRGBde0A15(rgb_direito)
+                    hsv_esq = cor_esquerda.converterRGBde0A15(rgb_esquerdo)
+                    contador = contador-1
+                robo.paraMotores()
+                verde_encontrado_esq = (hsv_esq == verde)
+            else:
+                robo.moverParaFrente(velocidade=100)
+                while contador < 80 and (hsv_dir != verde):
+                    rgb_direito = cor_direita.rgb()
+                    rgb_esquerdo = cor_esquerda.rgb()
+                    hsv_dir = cor_direita.converterRGBde0A15(rgb_direito)
+                    hsv_esq = cor_esquerda.converterRGBde0A15(rgb_esquerdo)
+                    contador = contador+1
+                robo.paraMotores()
+                robo.moverParaTras(velocidade=100)
+                contador = 0
+                while contador > -100 and (hsv_dir != verde):
+                    rgb_direito = cor_direita.rgb()
+                    rgb_esquerdo = cor_esquerda.rgb()
+                    hsv_dir = cor_direita.converterRGBde0A15(rgb_direito)
+                    hsv_esq = cor_esquerda.converterRGBde0A15(rgb_esquerdo)
+                    contador = contador-1
+                robo.paraMotores()
+                verde_encontrado_dir = (hsv_dir == verde)
+            
 
-        fimDaLinha(
-            cor_vermelha_direita=rgb_direito[0],
-            cor_vermelha_esquerda=rgb_esquerdo[0],
-            ultimo_lado_preto=ultimo_lado_preto
-        )
-
+            robo.paraMotores()
+            if(verde_encontrado_dir and verde_encontrado_esq):
+                robo.virar90grausDireita()
+                robo.virar90grausDireita()
+            elif(verde_encontrado_dir):
+                robo.virar90grausDireita()
+            else:
+                robo.virar90grausEsquerda()
+            robo.bipe()
+            break
         codigos.seguidorDeLinhaPreta(
-            motor_direito=motor_direita,
-            motor_esquerdo=motor_esquerda,
-            kd=70,
-            kp=13,
-            rgb_cor_esquerdo=rgb_esquerdo,
-            rgb_cor_direito=rgb_direito,
-            potencia_motores=50
-        )
+                    motor_direito=motor_direita,
+                    motor_esquerdo=motor_esquerda,
+                    kd=80,
+                    kp=12,
+                    rgb_cor_esquerdo=rgb_esquerdo,
+                    rgb_cor_direito=rgb_direito,
+                    potencia_motores=70,
+                )
 
 
-main()
-
-# def encontrarCor():
-#     rgb_direito = cor_direita.rgb()
-#     cor_direita.rgbParaCor(r=rgb_direito[0], g=rgb_direito[1], b=rgb_direito[2])
-# while True:
-#     encontrarCor()
+funcaoTeste()

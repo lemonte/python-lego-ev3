@@ -1,5 +1,5 @@
 from lego_imports.lego_imports import LegoImports
-
+# from arquivos.saidaHSV import cores
 
 class Uteis:
     __importar_lego = LegoImports()

@@ -82,7 +82,7 @@ class Robo:
         else:
             self.paraMotores()
             if(velocidade == None):
-                velocidade = -1000
-            self.__motor_direito.moverComVelocidade(velocidade=velocidade)
-            self.__motor_esquerdo.moverComVelocidade(velocidade=velocidade)
+                velocidade = 1000
+            self.__motor_direito.moverComVelocidade(velocidade=-velocidade)
+            self.__motor_esquerdo.moverComVelocidade(velocidade=-velocidade)
         
