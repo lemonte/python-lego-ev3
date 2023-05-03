@@ -23,19 +23,6 @@ class SeguidorLinha:
     def __calcularPotencia(self, kp, kd, erro, erroAnterior):
         return ((erro * kp) + kd * (erro - erroAnterior))/10
 
-    def __diferencaMotores(self, potencia: float):
-        if(potencia == 0):
-            return 0
-        coeficiente = potencia/abs(potencia)
-        diferenca = 0
-        soma_potencias = (potencia + self.__potencia_motores)
-        subtracao_potencias = (potencia - self.__potencia_motores)
-        if(soma_potencias > 100):
-            diferenca = soma_potencias - 100
-        elif(subtracao_potencias < -100):
-            diferenca = (subtracao_potencias + 100) * -1
-        return diferenca * coeficiente
-
     def seguirLinhaPreta(self, rgb_cor_esquerdo: tuple, rgb_cor_direito: tuple,  motor_direito: RoboMotor, motor_esquerdo: RoboMotor,  kp: int = 1, kd: int = 1, potencia_motores: int = 70):
         self.__kp = kp
         self.__kd = kd
@@ -59,19 +46,26 @@ class SeguidorLinha:
               potencia = self.__calcularPotencia(
                   self.__kp, self.__kd, self.__erro, self.__erroAnterior)
 
-              diferenca_potencia_maxima_e_erro = self.__diferencaMotores(
-                  potencia)
-                  
+              diferenca_potencia_maxima_e_erro = 0
+              valor_maximo = self.__potencia_motores + abs(potencia)
+              valor_minimo = self.__potencia_motores  -  abs(potencia)
+              potencia_maxima_permitida = self.__potencia_motores
+              if(valor_maximo > potencia_maxima_permitida):
+                  diferenca_potencia_maxima_e_erro = valor_maximo - potencia_maxima_permitida
+              if(valor_minimo < -potencia_maxima_permitida):
+                  diferenca_potencia_maxima_e_erro = valor_minimo + potencia_maxima_permitida
+              
               diferencaD = 0
               diferencaE = 0
               if(diferenca_potencia_maxima_e_erro < 0):
                   diferencaE = diferenca_potencia_maxima_e_erro
               else:
                   diferencaD = diferenca_potencia_maxima_e_erro
+                  
               mover_potencia_motor_direito = self.__potencia_motores - \
                   (potencia) - diferencaE
               mover_potencia_motor_esquerdo = self.__potencia_motores + \
-                  (potencia) + diferencaD
+                  (potencia + diferencaD)
 
               # mover motores
               self.__motor_direito.moverComPotencia(
