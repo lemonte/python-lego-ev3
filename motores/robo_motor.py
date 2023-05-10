@@ -53,6 +53,19 @@ class RoboMotor():
         """
         self.def_motor.run(velocidade)
 
+    def pegarVelocidadeDoMotor(self):
+        """ PEGAR VELOCIDADE DO MOTOR 
+        NAO RECEBE PARAMETROS
+        """
+        return self.def_motor.speed()
+
+    def pegarSeOMotorEstaParado(self):
+        """ PEGAR SE O MOTOR ESTA PARADO
+        NAO RECEBE PARAMETROS
+        """
+        return self.def_motor.control.stalled()
+    
+
     def girarAngulo(self, angulo: float, velocidade=__velocidade, then=__importar_lego.getStop().HOLD, wait=True):
         """ GIRAR MOTOR DETERMINADO ANGULO 
         PARAMETROS:

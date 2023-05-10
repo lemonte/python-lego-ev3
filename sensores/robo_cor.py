@@ -23,6 +23,9 @@ class RoboCor:
       intensidade = self.def_sensor_cor.read(0)[0]
       return intensidade
 
+    def retornaCor(self):
+       return self.def_sensor_cor.read(2)
+
     def rgb(self):
       return self.def_sensor_cor.read(4)
     

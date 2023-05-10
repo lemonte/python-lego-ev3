@@ -1,6 +1,6 @@
 #!/usr/bin/env pybricks-micropython
 
-from pybricks.ev3devices import Motor
+from pybricks.ev3devices import Motor, UltrasonicSensor, ColorSensor
 from pybricks.parameters import Port, Stop, Direction
 from pybricks.robotics import DriveBase
 from pybricks.hubs import EV3Brick
@@ -22,9 +22,15 @@ class LegoImports:
   def getStop(self):
     return Stop
   
+  def getColorSensor(self):
+    return ColorSensor
+  
   def getLUMPDevice(self):
     return LUMPDevice
   
+  def getUltrasonicSensor(self):
+    return UltrasonicSensor
+
   def getDCMotor(self):
     return DCMotor
   
